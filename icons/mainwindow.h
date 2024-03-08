@@ -75,6 +75,8 @@ private slots:
 
     void on_actionreset_code_triggered();
 
+    void on_goto_lineedit_editingFinished();
+
 private:
     Ui::MainWindow *ui;
     QString issaved="";

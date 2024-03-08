@@ -35,6 +35,7 @@ void MainWindow::emptyTable()
         ui->ram_tb->insertRow(v);
         ui->ram_tb->setItem(v,1,itm);
         ui->ram_tb->setItem(v,3,empty);
+        ui->ram_tb->setItem(v,4,empty);
 
     }
 }
@@ -91,11 +92,14 @@ void MainWindow::printTable()
             QString address = QString::number( v, 16 ).toUpper();
             QTableWidgetItem *itmaddr = new QTableWidgetItem();
             QTableWidgetItem *itmHex = new QTableWidgetItem();
+            QTableWidgetItem *itmDec = new QTableWidgetItem();
             itmaddr->setText(address);
             itmHex->setText("0000");
+            itmDec->setText("0");
             ui->ram_tb->insertRow(v);
             ui->ram_tb->setItem(v,1,itmaddr);
             ui->ram_tb->setItem(v,3,itmHex);
+            ui->ram_tb->setItem(v,4,itmDec);
             reseter=0;
         }
     }
@@ -106,6 +110,7 @@ void MainWindow::printTable()
             QString address = QString::number( v, 16 ).toUpper();
             QTableWidgetItem *itmaddr = new QTableWidgetItem();
             QTableWidgetItem *itmHex = new QTableWidgetItem();
+            QTableWidgetItem *itmDec = new QTableWidgetItem();
             itmaddr->setText(address);
             QString checkerString =QString::number( ram[v].to_ulong(), 16 ).toUpper();
             if(checkerString.size()==3){
@@ -118,8 +123,22 @@ void MainWindow::printTable()
                 checkerString = "000" + checkerString;
             }
             itmHex->setText(checkerString);
+            int dec_number=0;
+            if(ram[v][15])
+            {
+                //its a negative number
+                ram[v].flip();
+                dec_number = -(ram[v].to_ulong()+1);
+            }
+            else
+            {
+                dec_number = ram[v].to_ulong();
+            }
+            QString dec=QString::number(dec_number);
+            itmDec->setText(dec);
             ui->ram_tb->setItem(v,1,itmaddr);
             ui->ram_tb->setItem(v,3,itmHex);
+            ui->ram_tb->setItem(v,4,itmDec);
         }
     }
 }
@@ -303,7 +322,7 @@ void MainWindow::on_compile_btn_clicked()
     int lc=0;
     int lc1=0;
     ui->console->setText("");
-    commands = ui->editor->toPlainText().split('\n', QString::SkipEmptyParts);
+    commands = ui->editor->toPlainText().split('\n', Qt::SkipEmptyParts);
     tcommmands=commands.size();
     int endp1=0;
     for(int i=0;i<tcommmands;i++)
@@ -314,7 +333,7 @@ void MainWindow::on_compile_btn_clicked()
             compiled=0;
             break;
         }
-        QStringList riz = commands.at(i).split(' ', QString::SkipEmptyParts);
+        QStringList riz = commands.at(i).split(' ', Qt::SkipEmptyParts);
         if(riz.at(0)[riz.at(0).size()-1]==',')
         {
             QString wait=emptystring;
@@ -353,7 +372,7 @@ void MainWindow::on_compile_btn_clicked()
             break;
         }
 
-        QStringList riz = commands.at(i).split(' ', QString::SkipEmptyParts);
+        QStringList riz = commands.at(i).split(' ', Qt::SkipEmptyParts);
             if(riz.at(0)=="//" || riz.at(0)[0]=='/')
             {
                 continue;
@@ -435,8 +454,10 @@ void MainWindow::on_compile_btn_clicked()
                 if(riz.length()>1 && isNumber(riz.at(1)) )
                 {
                     bool ok=1;
+
                     int convertNumber=riz.at(1).toInt(&ok,10);
                     ram[lc]=convertNumber;
+
                 }
                 else
                 {
@@ -810,7 +831,7 @@ void MainWindow::on_next_btn_clicked()
         ui->console->setText("");
 
                 SC=clk;
-                    QStringList riz = commands.at(lineStep).split(' ', QString::SkipEmptyParts);
+        QStringList riz = commands.at(lineStep).split(' ', Qt::SkipEmptyParts);
                     if(riz.at(0)=="//" || riz.at(0)[0]=='/')
                     {
                        lineStep++;
@@ -821,7 +842,7 @@ void MainWindow::on_next_btn_clicked()
                             memorystep=riz.at(1).toInt(&ok,16);
                             lineStep++;
                     }
-                    riz = commands.at(lineStep).split(' ', QString::SkipEmptyParts);
+                    riz = commands.at(lineStep).split(' ', Qt::SkipEmptyParts);
 
                     if(clk==0)
                     {
@@ -1377,3 +1398,30 @@ void MainWindow::on_actionAbout_Mano_simulator_triggered()
     msgBox.setText("ARYA's basic mano computer. This program writed using C++ & QT framework and the source in my github account:\nhttps://github.com/arsalanyavari/mano-simulator    :)");
     msgBox.exec();
 }
+
+
+
+void MainWindow::on_goto_lineedit_editingFinished()
+{
+    QString addr= ui->goto_lineedit->text();
+    if(isNumber(addr))
+    {
+                    bool ok=1;
+                    int conv_add = addr.toInt(&ok,16);
+                    QTableWidgetItem * item = ui->ram_tb->item(conv_add,1);
+                    if(item)
+                    {
+                        ui->ram_tb->scrollToItem(item);
+                    }
+                    else
+                    {
+                        ui->console->setText("wrong address");
+                    }
+
+    }
+    else
+    {
+                    ui->console->setText("wrong address");
+    }
+}
+

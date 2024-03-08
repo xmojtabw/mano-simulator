@@ -123,16 +123,18 @@ void MainWindow::printTable()
                 checkerString = "000" + checkerString;
             }
             itmHex->setText(checkerString);
+            std::bitset<16> mem = ram[v];
             int dec_number=0;
-            if(ram[v][15])
+            if(mem[15])
             {
                 //its a negative number
-                ram[v].flip();
-                dec_number = -(ram[v].to_ulong()+1);
+
+                mem.flip();
+                dec_number = -(mem.to_ulong()+1);
             }
             else
             {
-                dec_number = ram[v].to_ulong();
+                dec_number = mem.to_ulong();
             }
             QString dec=QString::number(dec_number);
             itmDec->setText(dec);

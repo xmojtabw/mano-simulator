@@ -77,6 +77,8 @@ private slots:
 
     void on_goto_lineedit_editingFinished();
 
+    void on_in_line_editingFinished();
+
 private:
     Ui::MainWindow *ui;
     QString issaved="";

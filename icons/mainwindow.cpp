@@ -1427,3 +1427,10 @@ void MainWindow::on_goto_lineedit_editingFinished()
     }
 }
 
+
+void MainWindow::on_in_line_editingFinished()
+{
+    FGI=1;
+    ui->fgi_line->setText("1");
+}
+
